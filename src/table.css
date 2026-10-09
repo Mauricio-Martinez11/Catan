@@ -1,0 +1,1848 @@
+/* Illustrated island and the player's tabletop. */
+.map-shell {
+  background: linear-gradient(135deg, #dbc59d, #f3e7c9 45%, #c9b08a);
+  border: 1px solid #c9b18c;
+  box-shadow: 0 8px 28px #493c2012;
+}
+.map-ocean {
+  background: radial-gradient(
+    ellipse at 45% 35%,
+    #8abfc4,
+    #599ba6 70%,
+    #448995
+  );
+  border-color: #6b9e9d;
+  box-shadow: inset 0 0 70px #23495325;
+}
+.ocean-label {
+  color: #e4f2e4;
+}
+.tile image {
+  opacity: 1;
+}
+.tile .terrain-rim {
+  transition:
+    stroke 0.3s,
+    stroke-width 0.3s;
+}
+.tile.target {
+  cursor: pointer;
+}
+.tile.target:hover .terrain-rim,
+.tile.target:focus .terrain-rim {
+  stroke: #fff;
+  stroke-width: 5;
+}
+.tile.producing .terrain-rim {
+  animation: harvest-outline 1s ease-in-out 3;
+}
+.token circle {
+  filter: drop-shadow(0 2px 1px #392e2555);
+}
+.token.rolled circle {
+  fill: #fff5c6;
+  stroke: #be9241;
+}
+.building {
+  filter: drop-shadow(0 2px 1px #26382da8);
+}
+.harbor {
+  cursor: pointer;
+  outline: none;
+}
+.harbor-ship {
+  filter: drop-shadow(0 2px 1px #1d4f5940);
+}
+.harbor:hover .harbor-sail,
+.harbor:focus-visible .harbor-sail,
+.harbor.selected .harbor-sail {
+  fill: #fffbea;
+  stroke: #fff6c4;
+  stroke-width: 2;
+}
+.harbor:focus-visible .harbor-hull,
+.harbor.selected .harbor-hull {
+  stroke: #fff6c4;
+  stroke-width: 2;
+}
+.harbor-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 8px 3px;
+  color: #425a50;
+  font-size: 12px;
+  line-height: 1.55;
+}
+.harbor-info > div {
+  flex: 1;
+}
+.harbor-info strong,
+.harbor-info span {
+  display: block;
+}
+.harbor-info strong {
+  font-weight: 650;
+}
+.harbor-info button {
+  display: grid;
+  place-items: center;
+  min-width: 32px;
+  min-height: 32px;
+  border: 1px solid #c5b58f;
+  border-radius: 50%;
+  background: #fff8e6;
+  color: #425a50;
+  cursor: pointer;
+}
+.neutral-explanation {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #607266;
+}
+@media (max-width: 600px) {
+  .map-ocean {
+    padding-bottom: 46px;
+  }
+  .map-controls {
+    bottom: 8px;
+  }
+  .ocean-label {
+    bottom: 22px;
+  }
+}
+.turn-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 245px;
+}
+.turn-controls .roll-button {
+  width: 100%;
+  margin: 0;
+  min-height: 45px;
+  padding: 10px 16px;
+  font-size: 12px;
+}
+.turn-controls .dice-area {
+  margin: 0;
+}
+.turn-controls .die {
+  animation: dice-land 0.5s ease-out;
+}
+.turn-timer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 120px;
+  max-width: 180px;
+  color: #315349;
+  padding: 10px 14px 13px;
+  border-radius: 12px;
+  background: #e9eee0;
+  border: 1px solid #d7dfcc;
+  overflow: hidden;
+}
+.turn-timer small {
+  display: block;
+  font-size: 7px;
+  letter-spacing: 0.7px;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.turn-timer strong {
+  font-size: 28px;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -1px;
+}
+.timer-track {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: #cbd7c2;
+}
+.timer-track i {
+  display: block;
+  height: 100%;
+  background: #589077;
+  transition: width 0.2s linear;
+}
+.turn-timer.special {
+  background: #f5e4c8;
+  color: #93632e;
+  border-color: #e2c59c;
+}
+.turn-timer.special .timer-track i {
+  background: #ba873e;
+}
+.turn-timer.urgent {
+  background: #f9e0d7;
+  border-color: #d8a493;
+  color: #a54433;
+}
+.turn-timer.urgent .timer-track i {
+  background: #bd5942;
+}
+.production-summary {
+  margin: 0 0 16px;
+  padding: 14px 17px;
+  border: 1px solid #c7d9b9;
+  border-radius: 12px;
+  background: #edf3e4;
+  animation: receipt-in 0.4s ease-out;
+}
+.production-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #3d6341;
+  font-size: 12px;
+}
+.production-title > span {
+  font-size: 8px;
+  letter-spacing: 1px;
+  margin-left: auto;
+}
+.production-players {
+  display: flex;
+  gap: 8px 18px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.production-players > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+}
+.production-players > span > i {
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+}
+.production-summary p {
+  font-size: 11px;
+  color: #6f7f61;
+  margin-top: 6px;
+}
+.production-summary.robber-result {
+  background: #f5ead8;
+  border-color: #e5cfac;
+}
+.player-table {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border: 1px solid #d9c7a4;
+  border-radius: 16px;
+  overflow: hidden;
+  margin: 0 0 20px;
+  background: #f5ecd8;
+  box-shadow: 0 8px 20px #55421c0b;
+}
+.table-hand {
+  padding: 18px 22px 12px;
+  background:
+    linear-gradient(0deg, #624c383b, transparent 55%),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 29px,
+      #9c76550a 30px
+    ),
+    #eee3cc;
+}
+.hand-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.hand-heading h3 {
+  font-family: Manrope, sans-serif;
+  font-size: 18px;
+  color: #534d37;
+  margin: 6px 0 0;
+}
+.hand-heading .eyebrow {
+  font-size: 8px;
+  color: #827559;
+}
+.resource-hand {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 12px;
+  padding: 19px 4px 8px;
+}
+.resource-card {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 115px;
+  aspect-ratio: 0.7;
+  border: 4px solid #f5e7bf;
+  border-radius: 9px;
+  outline: 1px solid #bcab7a;
+  background: #ddcba3;
+  box-shadow:
+    2px 4px 0 #b49a72,
+    4px 8px 15px #39281340;
+  transform: rotate(-3deg);
+  transition: transform 0.2s ease;
+}
+.resource-card:nth-child(2),
+.resource-card:nth-child(4) {
+  transform: rotate(2deg) translateY(-3px);
+}
+.resource-card:nth-child(3) {
+  transform: translateY(-6px);
+}
+.resource-card:hover {
+  transform: translateY(-10px);
+  z-index: 2;
+}
+.resource-card.empty {
+  opacity: 0.52;
+  filter: saturate(0.6);
+  box-shadow: 1px 3px 4px #39281323;
+}
+.card-art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 5px;
+}
+.card-name {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  bottom: 12px;
+  left: -2px;
+  right: -2px;
+  padding: 8px 2px;
+  background: #fff0cdef;
+  border-block: 1px solid #c7b18a;
+  color: #4d4532;
+  text-align: center;
+}
+.card-name b {
+  font-size: 11px;
+  letter-spacing: 0.3px;
+}
+.card-quantity {
+  position: absolute;
+  right: -9px;
+  top: -11px;
+  border: 2px solid #f2dfae;
+  color: #fff9e7;
+  background: #284e43;
+  min-width: 31px;
+  height: 31px;
+  padding: 3px 6px;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 2px 5px #1c302a3a;
+  animation: receipt-in 0.4s ease-out;
+}
+.card-gain {
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 8px;
+  font-weight: 700;
+  background: #416a3d;
+  color: #fff9d8;
+  border: 1px solid #b4c990;
+  border-radius: 5px;
+  padding: 3px 5px;
+}
+.hand-privacy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: #73684d;
+  font-size: 9px;
+  line-height: 1.5;
+  margin-top: 13px;
+}
+.card-back {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  border: 2px solid #e6cc91;
+  border-radius: 5px;
+  background: repeating-linear-gradient(
+    45deg,
+    #285247,
+    #285247 7px,
+    #315e50 7px,
+    #315e50 8px
+  );
+  color: #ecdcae;
+}
+.card-back span {
+  font-size: 36px;
+}
+.card-back b {
+  letter-spacing: 2px;
+  font-size: 11px;
+}
+.cost-sheet {
+  padding: 18px 22px 14px;
+  background: radial-gradient(ellipse at top, #fff6df, #eadbb9);
+  border-top: 1px solid #cabb97;
+}
+.cost-sheet > .eyebrow {
+  font-size: 8px;
+  color: #9a8155;
+}
+.cost-sheet h3 {
+  font-size: 19px;
+  color: #6b4d31;
+  margin: 5px 0 12px;
+  font-family: Georgia, serif;
+}
+.cost-sheet-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 0;
+  border-top: 1px solid #bc9c6829;
+  color: #6b654d;
+}
+.cost-sheet-row > div {
+  min-width: 96px;
+}
+.cost-sheet-row b {
+  display: block;
+  color: #5a4731;
+  font-size: 12px;
+}
+.cost-sheet-row small {
+  display: block;
+  font-size: 9px;
+  margin-top: 3px;
+}
+.cost-sheet-row .cost-cards {
+  margin-left: auto;
+}
+.cost-sheet p {
+  margin-top: 8px;
+  font-size: 9px;
+  line-height: 1.6;
+  color: #8a7758;
+}
+.cost-ready,
+.cost-missing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 14px;
+  color: #3b7442;
+  background: #5e8a4930;
+  flex: none;
+}
+.cost-missing {
+  background: #b8855820;
+  color: #ae7a4f;
+}
+.cost-cards {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.mini-resource {
+  width: 23px;
+  height: 31px;
+  display: inline-block;
+  position: relative;
+  border: 2px solid #f5e5be;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px #49362255;
+}
+.mini-resource img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 2px;
+}
+.mini-resource i {
+  position: absolute;
+  bottom: -3px;
+  right: -3px;
+  display: grid;
+  place-items: center;
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: #3d704c;
+  color: #fff7dc;
+  font-size: 8px;
+  font-style: normal;
+}
+.mini-resource.missing img {
+  opacity: 0.4;
+  filter: grayscale(0.6);
+}
+.mini-resource.missing i {
+  background: #a3644a;
+}
+.build-option .cost-cards {
+  margin-top: 5px;
+}
+.build-option:disabled {
+  opacity: 0.72;
+}
+.game-sidebar {
+  align-self: start;
+}
+@media (min-width: 1150px) {
+  .player-table {
+    grid-template-columns: minmax(0, 1fr) 300px;
+  }
+  .cost-sheet {
+    border-top: 0;
+    border-left: 1px solid #cabb97;
+    padding-inline: 14px;
+  }
+  .cost-sheet-row {
+    gap: 7px;
+  }
+  .cost-sheet-row > div {
+    min-width: 75px;
+  }
+  .cost-sheet-row .mini-resource {
+    width: 19px;
+    height: 27px;
+  }
+  .cost-sheet-row .cost-cards {
+    gap: 3px;
+  }
+  .cost-sheet-row > svg {
+    width: 17px;
+    flex: none;
+  }
+  .cost-sheet-row small {
+    font-size: 8px;
+  }
+  .table-hand {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+@media (min-width: 851px) {
+  .game-board .island {
+    max-height: 530px;
+  }
+  .game-sidebar {
+    position: sticky;
+    top: 16px;
+  }
+}
+@media (max-width: 1150px) {
+  .turn-controls {
+    flex-basis: 200px;
+    gap: 7px;
+  }
+  .turn-timer {
+    min-width: 106px;
+    padding-inline: 10px;
+  }
+  .turn-timer strong {
+    font-size: 25px;
+  }
+  .turn-controls .die {
+    width: 29px;
+    height: 29px;
+    padding: 5px;
+    gap: 2px;
+  }
+  .turn-controls .die i {
+    width: 4px;
+    height: 4px;
+  }
+  .turn-controls .dice-total {
+    display: none;
+  }
+}
+@media (max-width: 850px) {
+  .game-sidebar {
+    display: flex;
+    flex-direction: column;
+  }
+  .game-sidebar > section,
+  .game-sidebar > button,
+  .game-sidebar > div {
+    width: 100%;
+  }
+  .game-sidebar > .action-panel {
+    order: 2;
+  }
+  .game-sidebar > .end-button {
+    order: 3;
+  }
+  .game-sidebar > .bank-panel {
+    order: 4;
+  }
+}
+@media (max-width: 550px) {
+  .turn-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .turn-bar h2 {
+    max-width: none;
+    font-size: 20px;
+  }
+  .turn-controls {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr);
+    justify-content: start;
+    gap: 9px;
+  }
+  .turn-timer {
+    min-width: 100px;
+    max-width: 125px;
+    padding: 6px 9px 9px;
+    gap: 5px;
+  }
+  .turn-timer > svg {
+    width: 15px;
+  }
+  .turn-timer strong {
+    font-size: 23px;
+  }
+  .turn-timer small {
+    font-size: 6px;
+    max-width: 85px;
+  }
+  .turn-controls .roll-button {
+    font-size: 10px;
+    padding: 8px;
+    line-height: 1.4;
+  }
+  .turn-controls .roll-button svg {
+    display: none;
+  }
+  .table-hand {
+    padding: 15px 12px 10px;
+  }
+  .hand-heading h3 {
+    font-size: 16px;
+  }
+  .resource-hand {
+    gap: 7px;
+    padding-inline: 0;
+  }
+  .resource-card {
+    border-width: 3px;
+    border-radius: 6px;
+  }
+  .card-quantity {
+    min-width: 25px;
+    height: 25px;
+    font-size: 14px;
+    top: -9px;
+    right: -5px;
+  }
+  .card-name {
+    bottom: 7px;
+    padding: 6px 0;
+    gap: 2px;
+  }
+  .card-name b {
+    font-size: 8px;
+    letter-spacing: 0;
+  }
+  .card-name svg {
+    width: 15px;
+    height: 15px;
+  }
+  .card-gain {
+    font-size: 6px;
+    padding: 2px;
+    bottom: -9px;
+  }
+  .hand-privacy {
+    font-size: 8px;
+  }
+  .hand-privacy svg {
+    flex: none;
+  }
+  .cost-sheet {
+    padding: 16px;
+  }
+  .production-title {
+    font-size: 11px;
+  }
+  .production-title > span {
+    font-size: 6px;
+  }
+  .production-players {
+    gap: 7px;
+  }
+  .production-players > span {
+    font-size: 10px;
+  }
+}
+
+/* Full tabletop skin: the island is the play surface, not a card. */
+.app.in-game {
+  min-height: 100vh;
+  background: #086da5;
+  color: #f4f8f2;
+}
+.in-game .topbar {
+  height: 72px;
+  padding-inline: 28px;
+  background: #075681;
+  border-bottom: 1px solid #2583b4;
+  color: #eef9f3;
+}
+.in-game .brand,
+.in-game .header-center,
+.in-game .header-actions,
+.in-game .header-actions .quiet {
+  color: #eef9f3;
+}
+.in-game .brand svg {
+  color: #d7f0ec;
+  fill: #e0b85e;
+}
+.in-game .connection {
+  color: #cde9dc;
+}
+.in-game .game-page {
+  max-width: 1900px;
+  padding: 18px 22px 26px;
+  background: #086da5;
+}
+.in-game .game-layout {
+  grid-template-columns: minmax(0, 1fr) 336px;
+  gap: 18px;
+  margin-top: 5px;
+}
+.in-game .turn-bar {
+  color: #f5fbf5;
+  padding: 3px 4px 15px;
+}
+.in-game .turn-bar p {
+  color: #b7deea;
+}
+.in-game .turn-bar .eyebrow {
+  color: #c8ebdc;
+}
+.in-game .turn-owner,
+.in-game .board-bottom .tag {
+  color: #e4f3ef;
+  border-color: #4a9bc2;
+  background: #075b88;
+}
+.in-game .game-board .map-shell {
+  border-radius: 0;
+  background: transparent;
+}
+.in-game .game-board .map-ocean {
+  min-height: 610px;
+  border: 0;
+  border-radius: 16px;
+  background: #086da5;
+  box-shadow: none;
+}
+.in-game .map-scroll {
+  overflow: visible;
+}
+.in-game .game-board .island {
+  max-height: 690px;
+}
+.in-game .ocean-label {
+  color: #a6d5e5;
+}
+.in-game .map-controls {
+  background: #d8f1f4d9;
+  border-color: #2d87ae;
+}
+.in-game .map-controls button {
+  color: #075985;
+}
+.in-game .board-bottom {
+  padding-inline: 5px;
+}
+.in-game .legend > span {
+  color: #c4e2df;
+}
+.in-game .game-sidebar {
+  gap: 10px;
+}
+.in-game .player-roster {
+  padding-top: 0;
+}
+.in-game .player-roster .score-player {
+  border-color: #197db0;
+  background: #075987;
+  color: #eef9f3;
+  box-shadow: 0 3px 0 #06476c;
+}
+.in-game .player-roster .score-player.current {
+  border-color: var(--player);
+  background: #0d638f;
+  box-shadow: inset 4px 0 var(--player), 0 3px 0 #06476c;
+}
+.in-game .player-roster .score-name b,
+.in-game .player-roster .score-points,
+.in-game .player-roster .score-points small {
+  color: #f6fbf2;
+}
+.in-game .player-roster .score-name small,
+.in-game .player-roster .piece-count {
+  color: #b9dce0;
+}
+.in-game .duel-panel,
+.in-game .action-card,
+.in-game .phase-help,
+.in-game .action-panel,
+.in-game .bank-panel,
+.in-game .winner-panel {
+  border-color: #2383b0;
+  background: #075987;
+  color: #e8f5ef;
+  box-shadow: 0 3px 0 #06476c;
+}
+.in-game .duel-panel p,
+.in-game .action-card > p,
+.in-game .panel-footnote,
+.in-game .bank-panel .section-label,
+.in-game .bank-resources > span,
+.in-game .build-description small {
+  color: #b6d8df;
+}
+.in-game .panel-title h3,
+.in-game .build-description > b,
+.in-game .action-tabs > button.active,
+.in-game .bank-resources b {
+  color: #f5fbf5;
+}
+.in-game .action-tabs {
+  border-color: #2c85ae;
+}
+.in-game .action-tabs > button {
+  color: #a8d3dc;
+}
+.in-game .action-tabs > button.active {
+  border-bottom-color: #7ee7d4;
+}
+.in-game .build-option {
+  border-color: #196f9d;
+  background: #0a6593;
+  color: #edf9ef;
+}
+.in-game .build-option:not(:disabled):hover,
+.in-game .build-option.selected {
+  border-color: #7de3d3;
+  background: #1479a1;
+}
+.in-game .action-dock {
+  border-color: #318bb2;
+  background: #075987;
+  box-shadow: 0 3px 0 #06476c;
+}
+.in-game .action-dock button {
+  color: #c8e9e7;
+}
+.in-game .action-dock button:hover,
+.in-game .action-dock button.active {
+  border-color: #74e2d0;
+  background: #0e79a5;
+  color: #fff;
+}
+.in-game .player-table {
+  border: 0;
+  box-shadow: none;
+}
+.in-game .table-hand {
+  border: 1px solid #b5c49e;
+  border-radius: 13px;
+}
+.in-game .cost-sheet {
+  border: 1px solid #b5c49e;
+  border-radius: 13px;
+}
+.in-game .awards > div,
+.in-game .history {
+  border-color: #2a85ae;
+  background: #075987;
+  color: #c5e1e0;
+}
+.in-game .awards b,
+.in-game .awards p > span,
+.in-game .history,
+.in-game .history summary > span {
+  color: #d4eee8;
+}
+.in-game .turn-controls .die {
+  width: 48px;
+  height: 48px;
+  background: #f7f8ee;
+  border: 2px solid #133c52;
+  box-shadow: 0 4px 0 #082f45;
+}
+.in-game .turn-controls .die i {
+  background: #17394c;
+}
+.in-game .turn-controls .roll-button {
+  background: #12a7ba;
+  border-color: #78e8e2;
+  color: #fff;
+}
+.in-game .turn-timer {
+  background: #dcecd6;
+  border-color: #8ab99a;
+  color: #2d5e4d;
+}
+
+@media (max-width: 850px) {
+  .in-game .topbar {
+    height: 61px;
+    padding-inline: 14px;
+  }
+  .in-game .brand {
+    font-size: 20px;
+  }
+  .in-game .brand svg {
+    width: 25px;
+    height: 25px;
+  }
+  .in-game .header-center {
+    display: none;
+  }
+  .in-game .header-actions .quiet {
+    font-size: 10px;
+    gap: 4px;
+  }
+  .in-game .game-page {
+    padding: 10px 8px 20px;
+  }
+  .in-game .game-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .in-game .game-sidebar {
+    display: contents;
+  }
+  .in-game .player-roster {
+    order: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    width: 100%;
+    padding: 0 0 8px;
+  }
+  .in-game .player-roster .score-player {
+    min-height: 61px;
+    padding: 7px;
+    gap: 6px;
+  }
+  .in-game .player-roster .avatar {
+    width: 25px;
+    height: 25px;
+  }
+  .in-game .player-roster .score-name b {
+    font-size: 9px;
+  }
+  .in-game .player-roster .score-name small {
+    gap: 3px;
+    font-size: 7px;
+  }
+  .in-game .player-roster .score-points {
+    font-size: 17px;
+  }
+  .in-game .game-board {
+    order: 1;
+  }
+  .in-game .game-board .map-ocean {
+    min-height: 0;
+    border-radius: 0;
+  }
+  .in-game .game-board .island {
+    max-height: none;
+    min-height: 0;
+  }
+  .in-game .turn-bar {
+    padding-bottom: 8px;
+  }
+  .in-game .turn-bar h2 {
+    font-size: 18px;
+  }
+  .in-game .turn-controls {
+    gap: 7px;
+  }
+  .in-game .turn-controls .die {
+    width: 38px;
+    height: 38px;
+    padding: 7px;
+  }
+  .in-game .neutral-strip {
+    color: #e0f2ea;
+    background: #075987;
+    border-color: #2a85ae;
+  }
+  .in-game .neutral-strip > span,
+  .in-game .neutral-strip small,
+  .in-game .neutral-explanation {
+    color: #b7dbe0;
+  }
+  .in-game .game-sidebar > .duel-panel,
+  .in-game .game-sidebar > .phase-help,
+  .in-game .game-sidebar > .action-panel,
+  .in-game .game-sidebar > .bank-panel,
+  .in-game .game-sidebar > .action-card,
+  .in-game .game-sidebar > .end-button {
+    order: 3;
+    width: 100%;
+  }
+  .in-game .player-table {
+    margin-top: 10px;
+  }
+  .in-game .table-hand,
+  .in-game .cost-sheet {
+    border-radius: 10px;
+  }
+}
+@keyframes harvest-outline {
+  50% {
+    stroke: #fff;
+    stroke-width: 5;
+  }
+}
+@keyframes dice-land {
+  0% {
+    opacity: 0.3;
+    transform: translateY(-8px) rotate(-25deg);
+  }
+  65% {
+    transform: translateY(2px) rotate(9deg);
+  }
+}
+@keyframes receipt-in {
+  from {
+    opacity: 0.3;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tile.producing .terrain-rim,
+  .turn-controls .die,
+  .production-summary,
+  .card-quantity {
+    animation: none;
+  }
+  .timer-track i,
+  .resource-card {
+    transition: none;
+  }
+}
+
+/* Tabletop layout: players live beside the island and actions read like a tray. */
+.game-page {
+  max-width: 1720px;
+  padding-top: 30px;
+}
+.game-layout {
+  grid-template-columns: minmax(0, 1fr) 320px;
+  align-items: start;
+  gap: 20px;
+}
+.game-board {
+  position: relative;
+}
+.game-board .map-shell {
+  padding: 0;
+  border: 0;
+  border-radius: 20px;
+  background: transparent;
+  box-shadow: none;
+}
+.game-board .map-ocean {
+  border: 10px solid #eadfc5;
+  border-radius: 21px;
+  box-shadow: 0 10px 30px #214f5038, inset 0 0 60px #174f5b20;
+}
+.turn-controls {
+  position: absolute;
+  z-index: 5;
+  top: 138px;
+  right: 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  width: auto;
+  min-width: 0;
+  pointer-events: none;
+}
+.turn-controls > * {
+  pointer-events: auto;
+}
+.turn-controls .dice-area {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.turn-controls .dice-placeholder {
+  width: 42px;
+  color: #446c70;
+}
+.turn-controls .roll-button {
+  width: auto;
+  min-width: 150px;
+  padding: 10px 13px;
+  border-radius: 9px;
+  font-size: 10px;
+}
+.player-roster {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 6px 0 10px;
+}
+.player-roster .score-player {
+  min-width: 0;
+  width: 100%;
+  padding: 10px 11px;
+  border-radius: 9px;
+  background: #f5f0e4;
+  box-shadow: 0 2px 5px #3d4c3212;
+}
+.player-roster .score-player.current {
+  box-shadow: inset 4px 0 var(--player), 0 2px 5px #3d4c3212;
+}
+.player-roster .score-name b {
+  font-size: 11px;
+}
+.player-roster .score-name small {
+  gap: 6px;
+  flex-wrap: wrap;
+  line-height: 1.2;
+}
+.score-icons > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.piece-count {
+  color: #788877;
+}
+.score-player .avatar {
+  width: 30px;
+  height: 30px;
+  border: 2px solid #fff7e4;
+  box-shadow: 0 2px 4px #233f3430;
+}
+.action-panel {
+  border-color: #cfdcc5;
+  border-radius: 12px;
+  background: #fbfaf1;
+  box-shadow: 0 5px 18px #3c523018;
+}
+.action-tabs > button {
+  flex-direction: column;
+  gap: 3px;
+  padding: 11px 0 9px;
+  font-size: 8px;
+  letter-spacing: .2px;
+  text-transform: uppercase;
+}
+.action-tabs .tab-icon {
+  display: block;
+}
+.action-tabs .tab-label {
+  display: block;
+}
+.build-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 7px;
+}
+.build-option {
+  min-height: 108px;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 4px;
+  padding: 7px;
+  border: 1px solid #e2e5d6;
+  background: #f8f7ed;
+}
+.build-option .build-icon {
+  width: 100%;
+  height: 42px;
+  justify-content: center;
+}
+.build-option .build-description > b {
+  margin: 0;
+  font-size: 9px;
+}
+.build-option .build-description small {
+  font-size: 7px;
+}
+.build-option > svg {
+  display: none;
+}
+.build-option .cost-cards {
+  justify-content: center;
+  width: 100%;
+  margin-top: 4px;
+}
+.build-option .mini-resource {
+  width: 17px;
+  height: 23px;
+}
+.build-option .mini-resource i {
+  width: 9px;
+  height: 9px;
+  font-size: 6px;
+}
+.cost-sheet h3 {
+  font-size: 15px;
+  margin: 0 0 8px;
+}
+.cost-sheet-row {
+  min-height: 40px;
+  padding: 5px 0;
+}
+.cost-sheet-row .piece-icon {
+  flex: none;
+}
+.cost-sheet-row .cost-cards {
+  margin-left: auto;
+}
+.cost-sheet-row .cost-ready,
+.cost-sheet-row .cost-missing {
+  width: 16px;
+  height: 16px;
+}
+.cost-sheet-row > div {
+  display: none;
+}
+.cost-sheet-row .mini-resource {
+  width: 17px;
+  height: 23px;
+}
+.resource-card {
+  border-width: 3px;
+}
+.table-hand {
+  padding: 15px 18px 12px;
+}
+.hand-heading h3 {
+  font-size: 26px;
+  line-height: 1;
+}
+.hand-heading .eyebrow {
+  font-size: 8px;
+}
+.card-name,
+.hand-privacy {
+  display: none;
+}
+.player-table {
+  border-radius: 12px;
+}
+.action-dock {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  margin: 0 0 13px;
+  padding: 6px;
+  border: 1px solid #c6d3c1;
+  border-radius: 12px;
+  background: #dce8d7;
+  box-shadow: 0 4px 14px #344b3818;
+}
+.action-dock button {
+  position: relative;
+  flex: 1;
+  min-height: 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 3px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: #547460;
+  font-size: 8px;
+  text-transform: uppercase;
+}
+.action-dock button:hover,
+.action-dock button.active {
+  border-color: #9ab69c;
+  background: #f8f7ed;
+  color: #1c5c58;
+}
+.action-dock button b {
+  position: absolute;
+  top: 3px;
+  right: 14px;
+  min-width: 15px;
+  padding: 2px 4px;
+  border-radius: 8px;
+  background: #c38c4f;
+  color: #fff9e6;
+  font-size: 8px;
+}
+
+@media (min-width: 1151px) {
+  .game-sidebar {
+    position: sticky;
+    top: 16px;
+  }
+  .scoreboard {
+    display: none;
+  }
+}
+@media (max-width: 850px) {
+  .game-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .game-board {
+    width: 100%;
+    min-width: 0;
+  }
+  .game-sidebar {
+    width: 100%;
+  }
+  .neutral-strip {
+    width: 100%;
+  }
+  .turn-controls {
+    position: static;
+    align-items: flex-start;
+    flex-direction: row;
+    width: 100%;
+    padding-top: 0;
+  }
+  .turn-controls .dice-area {
+    background: transparent;
+    box-shadow: none;
+  }
+  .game-board .map-ocean {
+    border-width: 7px;
+  }
+  .player-roster {
+    order: -2;
+  }
+}
+@media (max-width: 550px) {
+  .build-list {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .build-option {
+    min-height: 87px;
+    padding: 5px 3px;
+  }
+  .build-option .build-icon {
+    height: 32px;
+  }
+  .build-option .piece-icon {
+    width: 31px;
+    height: 31px;
+  }
+  .build-option .build-description > b {
+    display: block;
+    text-align: center;
+    font-size: 7px;
+  }
+  .build-option .build-description small {
+    display: none;
+  }
+  .build-option .cost-cards {
+    transform: scale(.82);
+  }
+  .turn-controls .roll-button {
+    min-width: 118px;
+    font-size: 9px;
+  }
+  .player-roster .score-name small {
+    font-size: 8px;
+  }
+}
+
+/* Final pass: the board is the table surface, with no pale game card around it. */
+.app.in-game .game-page {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  padding: 14px clamp(10px, 2vw, 30px) 28px;
+}
+.app.in-game .game-board .map-shell {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.app.in-game .game-board .map-ocean {
+  min-height: 640px;
+  padding: 0 0 34px;
+  border: 0;
+  border-radius: 0;
+  background: #086da5;
+  box-shadow: none;
+}
+.app.in-game .game-board .island {
+  max-height: 720px;
+}
+.app.in-game .map-scroll {
+  overflow: hidden;
+  max-height: 720px;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+.app.in-game .map-scroll.is-panning {
+  cursor: grabbing;
+}
+.app.in-game .map-scroll .island {
+  will-change: transform;
+}
+@media (min-width: 851px) {
+  .app.in-game .game-board .map-ocean {
+    min-height: 560px;
+    padding-bottom: 26px;
+  }
+  .app.in-game .game-board .island,
+  .app.in-game .map-scroll {
+    max-height: 580px;
+  }
+}
+.app.in-game .neutral-strip {
+  padding: 4px 6px;
+  border: 0;
+  background: transparent;
+  color: #cbe7e5;
+}
+.app.in-game .neutral-strip button {
+  padding: 5px 8px;
+  border-color: #2781aa;
+  background: #075987;
+  color: #d9eff0;
+}
+.app.in-game .neutral-strip button.selected {
+  border-color: #7de3d3;
+  background: #1378a1;
+}
+.app.in-game .neutral-explanation {
+  display: none;
+}
+.app.in-game .board-bottom {
+  padding-block: 8px;
+}
+.app.in-game .legend > span {
+  font-size: 8px;
+}
+
+@media (max-width: 850px) {
+  .app.in-game .game-page {
+    padding: 8px 8px 20px;
+  }
+  .app.in-game .game-board {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  .app.in-game .game-board .turn-bar {
+    display: contents;
+  }
+  .app.in-game .game-board .turn-bar > div:first-child {
+    display: contents;
+  }
+  .app.in-game .game-board .turn-bar .eyebrow {
+    order: 0;
+    padding: 5px 2px;
+    color: #c8ebdc;
+  }
+  .app.in-game .game-board .turn-bar h2,
+  .app.in-game .game-board .turn-bar p {
+    display: none;
+  }
+  .app.in-game .game-board .neutral-strip {
+    display: none;
+  }
+  .app.in-game .game-board > .map-shell {
+    order: 1;
+  }
+  .app.in-game .game-board .map-ocean {
+    min-height: 0;
+    padding-bottom: 32px;
+  }
+  .app.in-game .game-board .island {
+    width: 100%;
+    max-height: none;
+    min-height: 0;
+  }
+  .app.in-game .map-scroll {
+    max-height: none;
+  }
+  .app.in-game .game-board .turn-controls {
+    order: 2;
+    position: static;
+    flex: 0 0 auto;
+    width: 100%;
+    min-height: 62px;
+    padding: 9px 4px 3px;
+    align-items: center;
+    justify-content: flex-end;
+    flex-direction: row;
+    background: #075987;
+    border-top: 1px solid #2583b4;
+  }
+  .app.in-game .game-board .turn-controls .turn-timer {
+    margin-right: auto;
+  }
+  .app.in-game .game-board .turn-controls .roll-button {
+    min-width: 122px;
+  }
+  .app.in-game .game-board > .board-bottom {
+    order: 3;
+  }
+  .app.in-game .game-board > .action-dock {
+    order: 4;
+  }
+  .app.in-game .game-board > .production-summary,
+  .app.in-game .game-board > .player-table,
+  .app.in-game .game-board > .awards,
+  .app.in-game .game-board > .history {
+    order: 5;
+  }
+  .app.in-game .game-board > .action-dock {
+    margin-top: 8px;
+  }
+  .app.in-game .game-board > .player-table {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 550px) {
+  .app.in-game .game-board .turn-controls {
+    min-height: 58px;
+    padding: 8px 3px 2px;
+  }
+  .app.in-game .game-board .turn-controls .die {
+    width: 38px;
+    height: 38px;
+  }
+  .app.in-game .game-board .turn-controls .roll-button {
+    min-width: 114px;
+    min-height: 39px;
+    padding: 8px 9px;
+  }
+}
+
+/* Compact HUD and card tray based on the supplied desktop/mobile references. */
+.app.in-game .turn-bar {
+  min-height: 44px;
+  padding: 0 5px 7px;
+}
+.app.in-game .turn-bar > div:first-child h2,
+.app.in-game .turn-bar > div:first-child p {
+  display: none;
+}
+.app.in-game .turn-bar > div:first-child .eyebrow {
+  padding-top: 3px;
+  font-size: 9px;
+}
+.app.in-game .turn-controls {
+  top: 470px;
+  right: 22px;
+  bottom: auto;
+  flex-direction: row;
+  align-items: center;
+}
+.app.in-game .production-summary {
+  margin: 7px 0 10px;
+  padding: 7px 10px;
+  border-radius: 8px;
+}
+.app.in-game .production-summary .production-title {
+  font-size: 9px;
+}
+.app.in-game .production-summary .production-players,
+.app.in-game .production-summary > p {
+  display: none;
+}
+.app.in-game .phase-help {
+  display: none;
+}
+.app.in-game .action-card {
+  padding: 9px;
+  border-radius: 9px;
+}
+.app.in-game .action-card > h3,
+.app.in-game .action-card > p {
+  display: none;
+}
+.app.in-game .action-card .hand-picker {
+  margin: 0;
+}
+.app.in-game .action-card > .primary {
+  padding: 8px 10px;
+  font-size: 10px;
+}
+.app.in-game .panel-footnote {
+  display: none;
+}
+.app.in-game .player-table {
+  margin-top: 10px;
+  border-radius: 11px;
+}
+.app.in-game .player-roster {
+  position: relative;
+}
+.app.in-game .info-toggle {
+  position: absolute;
+  z-index: 2;
+  top: -2px;
+  right: 3px;
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  border: 1px solid #2c85ae;
+  border-radius: 7px;
+  background: #075987;
+  color: #c9e9e5;
+}
+.app.in-game .score-icons .piece-count .piece-icon {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+.app.in-game .ocean-label,
+.app.in-game .map-controls,
+.app.in-game .board-bottom,
+.app.in-game .game-board > .action-dock,
+.app.in-game .neutral-strip,
+.app.in-game .production-summary {
+  display: none;
+}
+.app.in-game .game-page.info-hidden .player-roster {
+  min-height: 27px;
+}
+.app.in-game .game-page.info-hidden .player-roster .score-player {
+  display: none;
+}
+.app.in-game .table-hand {
+  padding: 10px 14px 8px;
+}
+.app.in-game .hand-heading h3 {
+  margin: 0;
+  font-size: 20px;
+}
+.app.in-game .hand-heading .eyebrow {
+  font-size: 8px;
+}
+.app.in-game .resource-hand {
+  gap: 9px;
+  padding: 9px 0 2px;
+}
+.app.in-game .resource-card {
+  max-width: 100px;
+}
+.app.in-game .cost-sheet {
+  padding: 10px 14px;
+}
+.app.in-game .cost-sheet h3 {
+  margin: 0 0 4px;
+  font-size: 13px;
+}
+.app.in-game .cost-sheet-row {
+  min-height: 30px;
+  padding: 3px 0;
+  gap: 6px;
+}
+.app.in-game .cost-sheet-row .cost-cards {
+  gap: 2px;
+}
+.app.in-game .cost-sheet-row .mini-resource {
+  width: 15px;
+  height: 21px;
+}
+
+@media (max-width: 850px) {
+  .app.in-game .turn-bar {
+    min-height: 0;
+    padding: 0;
+  }
+  .app.in-game .game-board .turn-controls {
+    top: auto;
+    right: auto;
+    bottom: auto;
+    flex: 0 0 auto;
+  }
+  .app.in-game .production-summary,
+  .app.in-game .awards,
+  .app.in-game .history {
+    display: none;
+  }
+  .app.in-game .action-dock {
+    position: fixed;
+    z-index: 25;
+    right: 5px;
+    top: 50%;
+    display: flex;
+    flex-direction: column;
+    width: 48px;
+    margin: 0;
+    padding: 4px;
+    gap: 4px;
+    border-radius: 10px;
+    transform: translateY(-50%);
+  }
+  .app.in-game .game-board > .action-dock {
+    display: flex;
+  }
+  .app.in-game .action-dock button {
+    min-height: 42px;
+    padding: 4px 2px;
+    gap: 0;
+  }
+  .app.in-game .action-dock button span {
+    display: none;
+  }
+  .app.in-game .action-dock button b {
+    top: 1px;
+    right: 1px;
+  }
+  .app.in-game .player-table {
+    margin-top: 8px;
+    border: 0;
+    border-radius: 0;
+    background: #075987;
+    box-shadow: none;
+  }
+  .app.in-game .table-hand {
+    padding: 10px 12px 12px;
+    background: #075987;
+  }
+  .app.in-game .table-hand .hand-heading {
+    display: none;
+  }
+  .app.in-game .resource-hand {
+    gap: 6px;
+    padding: 0;
+  }
+  .app.in-game .resource-card {
+    max-width: none;
+    border-width: 3px;
+    border-color: #b8d7b8;
+    box-shadow: 1px 3px 0 #063f63, 2px 5px 9px #022c42a6;
+  }
+  .app.in-game .cost-sheet {
+    display: none;
+  }
+  .app.in-game .card-quantity {
+    min-width: 25px;
+    height: 25px;
+    font-size: 14px;
+    top: -9px;
+    right: -5px;
+  }
+  .app.in-game .game-sidebar > .action-panel {
+    order: 4;
+  }
+  .app.in-game .game-sidebar > .bank-panel {
+    order: -1;
+    width: 100%;
+    margin-bottom: 4px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: #075987;
+    border-color: #2383b0;
+  }
+  .app.in-game .game-sidebar > .bank-panel .section-label {
+    display: none;
+  }
+  .app.in-game .game-sidebar > .bank-panel .bank-resources {
+    margin: 0;
+    gap: 6px;
+  }
+  .app.in-game .game-sidebar > .bank-panel .bank-resources > span {
+    flex: 1;
+    justify-content: center;
+    font-size: 8px;
+    color: #d3ece9;
+  }
+  .app.in-game .game-sidebar > .duel-panel {
+    order: 5;
+  }
+  .app.in-game .game-sidebar > .action-card,
+  .app.in-game .game-sidebar > .winner-panel {
+    order: 6;
+  }
+  .app.in-game .panel-footnote {
+    display: none;
+  }
+  .app.in-game .game-page:not(.mobile-panel-open) .game-sidebar > .action-panel {
+    display: none;
+  }
+  .app.in-game .game-page.mobile-panel-open .game-sidebar > .action-panel {
+    display: block;
+  }
+  .app.in-game .game-page:not(.panel-trade) .game-sidebar > .duel-panel {
+    display: none;
+  }
+  .app.in-game .game-sidebar > .duel-panel {
+    padding: 7px 9px;
+  }
+  .app.in-game .game-sidebar > .duel-panel .panel-title h3 {
+    font-size: 10px;
+  }
+  .app.in-game .game-sidebar > .duel-panel p,
+  .app.in-game .game-sidebar > .duel-panel > small {
+    display: none;
+  }
+  .app.in-game .game-sidebar > .duel-panel .duel-actions {
+    flex-direction: row;
+    gap: 5px;
+  }
+  .app.in-game .game-sidebar > .duel-panel .duel-actions button {
+    flex: 1;
+    min-height: 28px;
+    padding: 5px 4px;
+    font-size: 8px;
+  }
+}
